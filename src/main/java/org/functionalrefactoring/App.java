@@ -16,11 +16,11 @@ public class App {
      }
 
     private static Option<DiscountRule> lookupDiscountRule(Cart cart) {
-        return lift(App::partialLookupDiscountRule,cart.customerId);
+        return liftNull(App::partialLookupDiscountRule,cart.customerId);
     }
 
     private static Option<Cart> loadCart(CartId cartId) {
-        return lift(App::partialLoadCart,cartId);
+        return liftNull(App::partialLoadCart,cartId);
     }
 
     private static Cart partialLoadCart(CartId id) {
@@ -31,12 +31,12 @@ public class App {
         return null;
     }
 
-    private static <A,B> Option<B> lift(Function<A, B> f, A a)
+    private static <A,B> Option<B> liftNull(Function<A, B> f, A a)
     {
-      return lift(f).apply(a);
+      return liftNull(f).apply(a);
     }
 
-    private static <A,B> Function<A, Option<B>> lift(Function<A, B> func)
+    private static <A,B> Function<A, Option<B>> liftNull(Function<A, B> func)
     {
         return value -> {
             B apply = func.apply(value);
