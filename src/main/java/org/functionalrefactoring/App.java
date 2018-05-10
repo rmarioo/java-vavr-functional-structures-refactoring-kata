@@ -8,14 +8,22 @@ import java.util.function.Function;
 
 public class App {
     public static void applyDiscount(CartId cartId, Storage<Cart> storage) {
-        lift(App::loadCart,cartId)
-        .map(cart -> lift(App::lookupDiscountRule,cart.customerId)
+        loadCart(cartId)
+        .map(cart -> lookupDiscountRule(cart)
         .map(rule -> rule.apply(cart) )
         .map(discount -> updateAmount(cart, discount))
         .peek(updatedCart -> save(updatedCart, storage)));
      }
 
-    private static Cart loadCart(CartId id) {
+    private static Option<DiscountRule> lookupDiscountRule(Cart cart) {
+        return lift(App::partialLookupDiscountRule,cart.customerId);
+    }
+
+    private static Option<Cart> loadCart(CartId cartId) {
+        return lift(App::partialLoadCart,cartId);
+    }
+
+    private static Cart partialLoadCart(CartId id) {
         if (id.value.contains("gold"))
             return new Cart(id, new CustomerId("gold-customer"), new Amount(new BigDecimal(100)));
         if (id.value.contains("normal"))
@@ -36,7 +44,7 @@ public class App {
         };
     }
 
-    private static DiscountRule lookupDiscountRule(CustomerId id) {
+    private static DiscountRule partialLookupDiscountRule(CustomerId id) {
 
         return (id.value.contains("gold")) ? new DiscountRule(App::half) : null;
 
