@@ -38,8 +38,8 @@ public class App {
 
     private static <A,B> Function<A, Option<B>> lift(Function<A, B> func)
     {
-        return customerId -> {
-            B apply = func.apply(customerId);
+        return value -> {
+            B apply = func.apply(value);
             return Option.when(apply != null,apply);
         };
     }
